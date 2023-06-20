@@ -1,7 +1,6 @@
 import re
 import hashlib
 import difflib
-import pyperclip
 
 from bs4 import BeautifulSoup
 import requests
