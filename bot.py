@@ -36,7 +36,6 @@ class DiscordCommand:
         for url in self.db.get_all_url():
             id, username, link, target, html, encrypted, date_added = url
             response = self.controls.get(link)
-
             if response:
 
                 new_html = str(self.controls.find_target(response.text, 'table', _class='bbs_list', multiple=False))
@@ -44,7 +43,6 @@ class DiscordCommand:
                 old_html = str(self.controls.find_target(html, 'table', _class='bbs_list', multiple=False))
 
                 hashed = self.controls.convert(bytes(new_html, encoding='utf-8')).hexdigest()
-
 
                 if hashed != encrypted:
                     new = self.controls.remove_whitespace(new_html)
@@ -66,7 +64,6 @@ class DiscordCommand:
 
                                 for channel in channels:
                                     if channel.name == 'dn-news' and self.is_for_dn:
-
                                         await channel.send(
                                             f'Update!\n{self.controls.build_url(f"{link}/all", id)}'
                                         )
