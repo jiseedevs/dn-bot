@@ -60,7 +60,7 @@ class Controls:
             Compare if there's changes to new and old html file and
             returns the list of difference.
         '''
-        return [difference for difference in difflib.context_diff(new, old) if difference.startswith('-')]
+        return [difference for difference in difflib.ndiff(new, old) if difference.startswith('-')]
 
     def get_url_id(self, html, selector, parser=None):
         '''
