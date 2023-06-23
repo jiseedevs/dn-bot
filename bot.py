@@ -30,9 +30,7 @@ class DiscordCommand:
         if self.is_ready:
             await self.schedule_tasks.start()
 
-    @tasks.loop(minutes=15.0)
-    async def schedule_tasks(self, guild):
-
+    def check(self, guild):
         if self.db.get_all_url():
 
             for url in self.db.get_all_url():
@@ -54,7 +52,6 @@ class DiscordCommand:
                         # Get text channels.
                         channels = guild[0].text_channels
 
-
                         new = self.controls.remove_whitespace(new_html)
                         old = self.controls.remove_whitespace(old_html)
                         comparison = self.controls.compare(new, old)
@@ -73,28 +70,23 @@ class DiscordCommand:
 
                                     for channel in channels:
 
-                                        if channel.name == 'dn-news' and self.is_for_dn:
-                                            created_url = self.controls.build_url(f"{link}/all", url_id)
+                                        created_url = self.controls.build_url(f"{link}/all", url_id)
 
-                                            if created_url not in links:
-                                                links.append(created_url)
+                                        if created_url not in links:
+                                            links.append(created_url)
 
-                                            for url in links:
+                        # Update the current HTML & encrypted(hash) record in the database with the newest updates.
 
-                                                await channel.send(
-                                                    f'Update!\n{url}'
-                                                )
+                        record = {
+                            'username': 'jiseoh',
+                            'url': link,
+                            'html': new_html,
+                            'encrypted': hashed,
+                        }
 
-                            # Update the current HTML & encrypted(hash) record in the database with the newest updates.
+                        self.db.update_record(record)
 
-                            record = {
-                                'username': 'jiseoh',
-                                'url': link,
-                                'html': new_html,
-                                'encrypted': hashed,
-                            }
-
-                            self.db.update_record(record)
+                        return links
 
                     else:
                         print(f'{datetime.datetime.now()} Same hash.')
@@ -108,6 +100,19 @@ class DiscordCommand:
                         'encrypted': '',
                     }
             self.db.insert_to_webpage(record)
+
+    @tasks.loop(minutes=15.0)
+    async def schedule_tasks(self, guild):
+
+        channels = guild[0].text_channels
+
+        urls = self.check(guild)
+
+        if urls:
+            for url in urls:
+                for channel in channels:
+                    if channel.name == 'dn-news':
+                        await channel.send(f'Update {url}')
 
 if __name__ == '__main__':
     intents = discord.Intents.default()
