@@ -30,7 +30,7 @@ class DiscordCommand:
         if self.is_ready:
             await self.schedule_tasks.start()
 
-    @tasks.loop(seconds=5.0)
+    @tasks.loop(minutes=30.0)
     async def schedule_tasks(self, guild):
 
         if self.db.get_all_url():
