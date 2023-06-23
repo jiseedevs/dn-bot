@@ -20,7 +20,7 @@ class DatabaseHandler:
             cls._instance = super(DatabaseHandler, cls).__new__(cls)
 
         return cls._instance
-    
+
     def start(self):
         '''
             Connects to the database.
@@ -37,7 +37,7 @@ class DatabaseHandler:
         self.connection.close()
 
     def create_table(self):
-  
+
         if self.cursor:
             self.cursor.execute(
                 '''
@@ -51,7 +51,7 @@ class DatabaseHandler:
                         encrypted TEXT NOT NULL,
                         date_added timestamp DEFAULT (%s)
                     )
-                ''', (datetime.datetime.now(),) 
+                ''', (datetime.datetime.now(),)
             )
 
             self.connection.commit()
@@ -68,7 +68,7 @@ class DatabaseHandler:
             )
 
             self.connection.commit()
-    
+
     def check_if_table_exists(self, table):
         pass
 
@@ -77,7 +77,7 @@ class DatabaseHandler:
             Save record to the table.
         '''
         if isinstance(data, dict):
-            print(data)
+
             if self.cursor:
                 self.cursor.execute(
                     '''
@@ -88,7 +88,7 @@ class DatabaseHandler:
                     )
                     )
                 self.connection.commit()
-    
+
     def get_user_records(self, data):
         '''
             Get records to specific user if url is specified, return the record otherwise return all records of the user.
@@ -115,9 +115,9 @@ class DatabaseHandler:
 
             self.connection.commit()
             return self.cursor.fetchall()
-        
+
         return None
-    
+
     def get_all_url(self):
         if self.cursor:
             self.cursor.execute(
@@ -127,7 +127,7 @@ class DatabaseHandler:
                     )
             self.connection.commit()
             return self.cursor.fetchall()
-    
+
     def update_record(self, data):
         '''
             Updates the record base on user and url given.

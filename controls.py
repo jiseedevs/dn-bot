@@ -15,13 +15,13 @@ class Controls:
         pass
 
     def get(self, url):
-    
+
         req = requests.get(url)
         if req.status_code == 200:
             return req
         else:
             return None
-    
+
     def parse(self, content, parser=None):
         '''
             Parse the content to html object.
@@ -34,7 +34,7 @@ class Controls:
     @property
     def get_parsed(self):
         return self.parsed
-    
+
 
     def convert(self, string):
         '''
@@ -52,7 +52,7 @@ class Controls:
 
             if not multiple and _class:
                 return soup.find(target, class_=_class)
-        
+
         return soup.css.select(target)
 
     def compare(self, new, old):
@@ -88,10 +88,12 @@ class Controls:
         '''
             Builds a url from selector or from specified id.
         '''
-        id = id.strip('()')
+        if isinstance(id, str):
+            id = id.strip('()')
+
         if base_url.endswith('/'):
             return f'{base_url}{id}'
-        
+
         else:
             return f'{base_url}/{id}'
 
