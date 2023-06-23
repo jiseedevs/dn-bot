@@ -97,7 +97,7 @@ class DiscordCommand:
                             self.db.update_record(record)
 
                     else:
-                        print('Same hash.')
+                        print(f'{datetime.datetime.now()} Same hash.')
         else:
 
             record = {

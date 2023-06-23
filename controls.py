@@ -70,9 +70,6 @@ class Controls:
             soup =  BeautifulSoup(html, 'html.parser') or parser(html)
             element = soup.find_all(selector)
 
-    def rebuild_html_from_list(self, list, seperator='\n'):
-        return seperator.join(list)
-
     def find(self, html, pattern=None):
         '''
             Find the actual id.
@@ -102,7 +99,3 @@ class Controls:
             Removes the whitespaces and split them by linebreaks, returns a list of strings.
         '''
         return list(map(str.strip, string.splitlines()))
-
-
-    def soup_to_string(self, soup):
-        return BeautifulSoup(soup, 'html.parser').prettify()
