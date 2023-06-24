@@ -44,7 +44,7 @@ class Controls:
 
         return converted
 
-    def find_target(self, parsed=None, target=None, multiple=False, _class=None):
+    def find_target(self, parsed=None, target='body', multiple=False, _class=None):
         if parsed is None and target:
             return self.get_parsed.find(target)
         else:
