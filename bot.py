@@ -31,6 +31,9 @@ class DiscordCommand:
             await self.schedule_tasks.start()
 
     def check(self, guild):
+        '''
+            Perform GET request to all URLs in the database and check if there's news or changes in the website.
+        '''
         if self.db.get_all_url():
 
             for url in self.db.get_all_url():
@@ -38,19 +41,19 @@ class DiscordCommand:
                 response = self.controls.get(link)
                 if response:
 
-                    new_html = str(self.controls.find_target(response.text, 'table', _class='bbs_list', multiple=False))
+                    new_html = str(self.controls.find_target(response.text, target='table', _class='bbs_list', multiple=False))
 
-                    old_html = str(self.controls.find_target(html, 'table', _class='bbs_list', multiple=False))
+                    old_html = str(self.controls.find_target(html, target='table', _class='bbs_list', multiple=False))
 
                     hashed = self.controls.convert(bytes(new_html, encoding='utf-8')).hexdigest()
 
                     if hashed != encrypted:
-
+                        # Check if new hashed html if same with old hashed html.
+                        # This will perform updating of url html content if new and old hashed is not the same.
                         # Store all created links here
                         links = []
-
                         # Get text channels.
-                        channels = guild[0].text_channels
+                        channels = guild.text_channels
 
                         new = self.controls.remove_whitespace(new_html)
                         old = self.controls.remove_whitespace(old_html)
@@ -90,8 +93,9 @@ class DiscordCommand:
 
                     else:
                         print(f'{datetime.datetime.now()} Same hash.')
+                        return None
         else:
-
+            # Initialize database first row that can be checked once schedule ran.
             record = {
                         'username': 'jiseoh',
                         'url': 'https://sea.dragonnest.com/news/notice',
@@ -100,30 +104,54 @@ class DiscordCommand:
                         'encrypted': '',
                     }
             self.db.insert_to_webpage(record)
+            print(f'{datetime.datetime.now()} Initialized first row.')
 
-    @tasks.loop(minutes=15.0)
-    async def schedule_tasks(self, guild):
-
-        channels = guild[0].text_channels
-
-        urls = self.check(guild)
-
-        if urls:
+    async def send_update(self, channels, urls, context=False):
+        '''
+            Sends the created URLs in the discord guild.
+        '''
+        if urls and not context:
             for url in urls:
                 for channel in channels:
                     if channel.name == 'dn-news':
-                        await channel.send(f'Update {url}')
+                        await channel.send(f'Update\n{url}')
+
+        elif urls and context:
+            for url in urls:
+                for url in urls:
+                    await channel.send(f'Update\n{url}')
+
+        elif not urls and context:
+            await channels.send('No new updates yet.')
+
+    @tasks.loop(minutes=15.0)
+    async def schedule_tasks(self, guild):
+        guild = guild[0]
+        channels = guild.text_channels
+
+        urls = self.check(guild)
+
+        await self.send_update(channels, urls)
+
 
 if __name__ == '__main__':
     intents = discord.Intents.default()
     intents.message_content = True
 
-    client = discord.Client(intents=intents)
+    client = commands.Bot(command_prefix='$', intents=intents)
     mybot = DiscordCommand()
 
     @client.event
     async def on_ready():
         mybot.set_is_url_for_dn(True)
         await mybot.schedule_tasks.start(client.guilds)
+
+    @client.command(name='check')
+    async def check(context):
+        if context.channel.name in ('spam-command', 'dn-news') and context. author != context.me:
+            guild = client.guilds
+            channels = context.channel
+            urls = mybot.check(guild)
+            await mybot.send_update(channels, urls, context=True)
 
     client.run(os.getenv('TOKEN'))
