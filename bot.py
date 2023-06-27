@@ -128,19 +128,15 @@ class DiscordCommand:
             for url in urls:
                 for channel in channels:
                     if channel.name == "dn-news":
-                        print(f"url and no context {url}")
-
-                        # await channel.send(f"Update\n{url}")
+                        await channel.send(f"Update\n{url}")
 
         elif urls and context:
             for url in urls:
                 for url in urls:
-                    print(f"url and context {url}")
-                    # await channel.send(f"Update\n{url}")
+                    await channel.send(f"Update\n{url}")
 
         elif not urls and context:
-            print(f"No updates")
-            # await channels.send("No new updates yet.")
+            await channels.send("No new updates yet.")
 
     @tasks.loop(minutes=15.0)
     async def schedule_tasks(self, guild):
